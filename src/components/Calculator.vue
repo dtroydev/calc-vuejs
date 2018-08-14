@@ -180,8 +180,11 @@ export default {
         // append allowed in other cases, but do not allow double dot
         this.display += textContent;
       }
-      this.previous = this.current;
-      this.current = DIGIT;
+      if (this.current !== DIGIT) {
+        // ignore repeated digits to avoid losing track of operators
+        this.previous = this.current;
+        this.current = DIGIT;
+      }
       clear.textContent = 'C';
       adjustDisplay.call(this);
     },
