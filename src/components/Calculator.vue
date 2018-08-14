@@ -89,7 +89,6 @@ const operatorClick = function operatorClick() {
   } else {
     this.rightoperand = this.display.slice(0);
     if (this.current === DIGIT) {
-      console.log(this.leftoperand, this.rightoperand);
       this.display = this.operator()
         .sd(PRECISION)
         .toString();
