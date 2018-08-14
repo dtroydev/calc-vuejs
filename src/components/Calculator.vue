@@ -83,20 +83,13 @@ const operationsPrep = function operations() {
   }
 };
 
-const operatorClick = function operatorClick(e) {
-  if (blockmouseup) return;
-  e.target.classList.remove('highlight');
+const operatorClick = function operatorClick() {
   if (this.operator === null) {
     this.leftoperand = this.display.slice(0);
   } else {
-    console.log('operator click: this.operator exists');
     this.rightoperand = this.display.slice(0);
     if (this.current === DIGIT) {
-      console.log(
-        'operator click: sending off for operation',
-        this.leftoperand,
-        this.rightoperand,
-      );
+      console.log(this.leftoperand, this.rightoperand);
       this.display = this.operator()
         .sd(PRECISION)
         .toString();
@@ -194,6 +187,8 @@ export default {
       adjustDisplay.call(this);
     },
     addition(e) {
+      if (blockmouseup) return;
+      e.target.classList.remove('highlight');
       if (this.current === DIGIT || this.current === ENTER) {
         operatorClick.call(this, e);
       }
@@ -205,6 +200,8 @@ export default {
       this.current = ADDITION;
     },
     subtraction(e) {
+      if (blockmouseup) return;
+      e.target.classList.remove('highlight');
       if (this.current === DIGIT || this.current === ENTER) {
         operatorClick.call(this, e);
       }
@@ -215,6 +212,8 @@ export default {
       this.current = SUBTRACTION;
     },
     division(e) {
+      if (blockmouseup) return;
+      e.target.classList.remove('highlight');
       if (this.current === DIGIT || this.current === ENTER) {
         operatorClick.call(this, e);
       }
@@ -227,6 +226,8 @@ export default {
       this.current = DIVISION;
     },
     multiplication(e) {
+      if (blockmouseup) return;
+      e.target.classList.remove('highlight');
       if (this.current === DIGIT || this.current === ENTER) {
         operatorClick.call(this, e);
       }
