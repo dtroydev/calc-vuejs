@@ -46,8 +46,16 @@ const [DIGIT, ENTER, ADDITION, SUBTRACTION, MULTIPLICATION, DIVISION] = [
 
 let display; // display font resizing
 let clear; // clear button text value updates
-
 let blockmouseup = false; // block key operation if mouse was dragged across while pressed
+
+const template = {
+  leftoperand: '',
+  rightoperand: '',
+  previous: '',
+  current: DIGIT,
+  operator: null,
+  display: '0',
+};
 
 const adjustDisplay = function adjustDisplay() {
   const FONTBREAKPOINT = [7, 9, 11, 13, 15];
@@ -66,7 +74,9 @@ const adjustDisplay = function adjustDisplay() {
 };
 
 const operationsPrep = function operations() {
-  if (this.lastkey === ENTER || this.rightoperand.length) {
+  if (this.current === ENTER) {
+    this.leftoperand = this.display.slice(0);
+  } else if (this.previous === ENTER) {
     this.leftoperand = this.display.slice(0);
   } else {
     this.rightoperand = this.display.slice(0);
@@ -76,8 +86,24 @@ const operationsPrep = function operations() {
 const operatorClick = function operatorClick(e) {
   if (blockmouseup) return;
   e.target.classList.remove('highlight');
-  this.leftoperand = this.display;
-  this.rightoperand = '';
+  if (this.operator === null) {
+    this.leftoperand = this.display.slice(0);
+  } else {
+    console.log('operator click: this.operator exists');
+    this.rightoperand = this.display.slice(0);
+    if (this.current === DIGIT) {
+      console.log(
+        'operator click: sending off for operation',
+        this.leftoperand,
+        this.rightoperand,
+      );
+      this.display = this.operator()
+        .sd(PRECISION)
+        .toString();
+      this.leftoperand = this.display.slice(0);
+      adjustDisplay.call(this);
+    }
+  }
 };
 
 export default {
@@ -114,11 +140,7 @@ export default {
       if (clear.textContent.localeCompare('C') === 0) {
         clear.textContent = 'AC';
       } else {
-        this.leftoperand = '';
-        this.rightoperand = '';
-        this.lastkey = DIGIT;
-        this.operator = '';
-        this.display = '0';
+        Object.assign(this, template);
       }
     },
     sign(e) {
@@ -147,7 +169,7 @@ export default {
       }
       let { textContent } = e.target;
       if (textContent.localeCompare('') === 0) textContent = '0'; // button to right of zero
-      if (this.lastkey !== DIGIT) {
+      if (this.current !== DIGIT) {
         // no append, because last key was an operator or enter
         this.display = textContent;
         if (textContent.localeCompare('.') === 0) {
@@ -166,43 +188,55 @@ export default {
         // append allowed in other cases, but do not allow double dot
         this.display += textContent;
       }
-
-      this.lastkey = DIGIT;
+      this.previous = this.current;
+      this.current = DIGIT;
       clear.textContent = 'C';
       adjustDisplay.call(this);
     },
     addition(e) {
-      operatorClick.call(this, e);
+      if (this.current === DIGIT || this.current === ENTER) {
+        operatorClick.call(this, e);
+      }
 
       this.operator = function operator() {
         return BigNumber(this.leftoperand).plus(BigNumber(this.rightoperand));
       };
-      this.lastkey = ADDITION;
+      this.previous = this.current;
+      this.current = ADDITION;
     },
     subtraction(e) {
-      operatorClick.call(this, e);
+      if (this.current === DIGIT || this.current === ENTER) {
+        operatorClick.call(this, e);
+      }
       this.operator = function operator() {
         return BigNumber(this.leftoperand).minus(BigNumber(this.rightoperand));
       };
-      this.lastkey = SUBTRACTION;
+      this.previous = this.current;
+      this.current = SUBTRACTION;
     },
     division(e) {
-      operatorClick.call(this, e);
+      if (this.current === DIGIT || this.current === ENTER) {
+        operatorClick.call(this, e);
+      }
       this.operator = function operator() {
         return BigNumber(this.leftoperand).dividedBy(
           BigNumber(this.rightoperand),
         );
       };
-      this.lastkey = DIVISION;
+      this.previous = this.current;
+      this.current = DIVISION;
     },
     multiplication(e) {
-      operatorClick.call(this, e);
+      if (this.current === DIGIT || this.current === ENTER) {
+        operatorClick.call(this, e);
+      }
       this.operator = function operator() {
         return BigNumber(this.leftoperand).multipliedBy(
           BigNumber(this.rightoperand),
         );
       };
-      this.lastkey = MULTIPLICATION;
+      this.previous = this.current;
+      this.current = MULTIPLICATION;
     },
     equals(e) {
       if (blockmouseup) return;
@@ -215,17 +249,12 @@ export default {
         this.leftoperand = this.display.slice(0);
         adjustDisplay.call(this);
       }
-      this.lastkey = ENTER;
+      this.previous = this.current;
+      this.current = ENTER;
     },
   },
   data() {
-    return {
-      leftoperand: '',
-      rightoperand: '',
-      lastkey: DIGIT,
-      operator: '',
-      display: '0',
-    };
+    return Object.assign({}, template);
   },
 };
 </script>
