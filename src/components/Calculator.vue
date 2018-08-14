@@ -158,8 +158,11 @@ export default {
         if (textContent.localeCompare('.') === 0) {
           this.display = '0.'; // prepend dots with 0
         }
-      } else {
-        // append allowed in other cases
+      } else if (
+        textContent.localeCompare('.')
+        || this.display.indexOf('.') === -1
+      ) {
+        // append allowed in other cases, but do not allow double dot
         this.display += textContent;
       }
 
