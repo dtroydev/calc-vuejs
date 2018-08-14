@@ -73,9 +73,11 @@ const operationsPrep = function operations() {
   }
 };
 
-const operations = function operations(result) {
-  this.display = result.sd(PRECISION).toString();
-  this.leftoperand = this.display.slice(0);
+const operatorClick = function operatorClick(e) {
+  if (blockmouseup) return;
+  e.target.classList.remove('highlight');
+  this.leftoperand = this.display;
+  this.rightoperand = '';
 };
 
 export default {
@@ -143,10 +145,9 @@ export default {
       if (e.target.textContent.localeCompare('') === 0) {
         e.target.previousSibling.classList.remove('highlight');
       }
-      const ops = [ENTER, ADDITION, SUBTRACTION, MULTIPLICATION, DIVISION];
       let { textContent } = e.target;
       if (textContent.localeCompare('') === 0) textContent = '0'; // button to right of zero
-      if (ops.includes(this.lastkey)) {
+      if (this.lastkey !== DIGIT) {
         // no append, because last key was an operator or enter
         this.display = textContent;
         if (textContent.localeCompare('.') === 0) {
@@ -171,77 +172,48 @@ export default {
       adjustDisplay.call(this);
     },
     addition(e) {
-      if (blockmouseup) return;
-      e.target.classList.remove('highlight');
-      this.leftoperand = this.display;
-      this.rightoperand = '';
-      this.operator = ADDITION;
+      operatorClick.call(this, e);
+
+      this.operator = function operator() {
+        return BigNumber(this.leftoperand).plus(BigNumber(this.rightoperand));
+      };
       this.lastkey = ADDITION;
     },
     subtraction(e) {
-      if (blockmouseup) return;
-      e.target.classList.remove('highlight');
-      this.leftoperand = this.display;
-      this.rightoperand = '';
-      this.operator = SUBTRACTION;
+      operatorClick.call(this, e);
+      this.operator = function operator() {
+        return BigNumber(this.leftoperand).minus(BigNumber(this.rightoperand));
+      };
       this.lastkey = SUBTRACTION;
     },
     division(e) {
-      if (blockmouseup) return;
-      e.target.classList.remove('highlight');
-      this.leftoperand = this.display;
-      this.rightoperand = '';
-      this.operator = DIVISION;
+      operatorClick.call(this, e);
+      this.operator = function operator() {
+        return BigNumber(this.leftoperand).dividedBy(
+          BigNumber(this.rightoperand),
+        );
+      };
       this.lastkey = DIVISION;
     },
     multiplication(e) {
-      if (blockmouseup) return;
-      e.target.classList.remove('highlight');
-      this.leftoperand = this.display;
-      this.rightoperand = '';
-      this.operator = MULTIPLICATION;
+      operatorClick.call(this, e);
+      this.operator = function operator() {
+        return BigNumber(this.leftoperand).multipliedBy(
+          BigNumber(this.rightoperand),
+        );
+      };
       this.lastkey = MULTIPLICATION;
     },
     equals(e) {
       if (blockmouseup) return;
       e.target.classList.remove('highlight');
-      switch (this.operator) {
-        case ADDITION:
-          operationsPrep.call(this);
-          operations.call(
-            this,
-            BigNumber(this.leftoperand).plus(BigNumber(this.rightoperand)),
-          );
-          adjustDisplay.call(this);
-          break;
-        case SUBTRACTION:
-          operationsPrep.call(this);
-          operations.call(
-            this,
-            BigNumber(this.leftoperand).minus(BigNumber(this.rightoperand)),
-          );
-          adjustDisplay.call(this);
-          break;
-        case MULTIPLICATION:
-          operationsPrep.call(this);
-          operations.call(
-            this,
-            BigNumber(this.leftoperand).multipliedBy(
-              BigNumber(this.rightoperand),
-            ),
-          );
-          adjustDisplay.call(this);
-          break;
-        case DIVISION:
-          operationsPrep.call(this);
-          operations.call(
-            this,
-            BigNumber(this.leftoperand).dividedBy(BigNumber(this.rightoperand)),
-          );
-          adjustDisplay.call(this);
-          break;
-        default:
-          break;
+      if (this.operator) {
+        operationsPrep.call(this);
+        this.display = this.operator()
+          .sd(PRECISION)
+          .toString();
+        this.leftoperand = this.display.slice(0);
+        adjustDisplay.call(this);
       }
       this.lastkey = ENTER;
     },
