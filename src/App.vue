@@ -16,4 +16,14 @@ export default {
 </script>
 
 <style>
+/* center the calculator */
+html,
+body {
+  height: 100%;
+}
+body {
+  display: grid;
+  justify-items: center;
+  align-items: center;
+}
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <div class="calculator center">
+  <div class="calculator">
     <div ref="display" class="display align displayfontsize0"> {{ display || 0 }} </div>
     <div ref="clear" @mousedown="highlight" @mouseout="nohighlight" @mouseup="clear" class="btn align topoperator clear">AC</div>
     <div @mousedown="highlight" @mouseout="nohighlight" @mouseup="sign" class="btn align topoperator">⁺∕₋</div>
@@ -349,13 +349,13 @@ export default {
   font-weight: var(--button-font-weight);
 }
 
-.calculator.center {
+/* .calculator.center { 
   position: fixed;
   top: 50%;
   left: 50%;
   margin-left: calc(var(--calc-width) / -2);
   margin-top: calc(var(--calc-height) / -2);
-}
+} */
 
 .display.align {
   display: grid;
